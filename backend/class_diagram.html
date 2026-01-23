@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Diagram - Lightning Wallet App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a365d;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
+
+        .diagram-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .diagram {
+            position: relative;
+            width: 1400px;
+            height: 900px;
+            margin: 0 auto;
+        }
+
+        /* SVG for connection lines */
+        .connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Class box styles */
+        .class-box {
+            position: absolute;
+            background: white;
+            border: 2px solid #2d3748;
+            border-radius: 8px;
+            min-width: 200px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .class-name {
+            background: #2d3748;
+            color: white;
+            padding: 10px 15px;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .class-name.user { background: #3182ce; }
+        .class-name.admin { background: #805ad5; }
+        .class-name.wallet { background: #dd6b20; }
+        .class-name.transaction { background: #38a169; }
+        .class-name.merchant { background: #e53e3e; }
+
+        .class-attributes {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f7fafc;
+        }
+
+        .class-methods {
+            padding: 12px 15px;
+            background: #fff;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .class-attributes p, .class-methods p {
+            margin: 4px 0;
+            color: #4a5568;
+        }
+
+        .class-methods p {
+            color: #2d3748;
+        }
+
+        /* Positioning classes */
+        .user { top: 50px; left: 50px; }
+        .admin { top: 50px; left: 550px; }
+        .transaction { top: 50px; left: 1050px; }
+        .wallet { top: 450px; left: 150px; }
+        .merchant { top: 450px; left: 1000px; }
+
+        /* Legend */
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: #edf2f7;
+            border-radius: 12px;
+        }
+
+        .legend h3 {
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-line {
+            width: 60px;
+            height: 3px;
+        }
+
+        .legend-symbol {
+            font-size: 1.5rem;
+        }
+
+        /* Multiplicity labels */
+        .multiplicity {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            fill: #e53e3e;
+        }
+
+        .relation-label {
+            font-family: 'Noto Sans Lao', sans-serif;
+            font-size: 0.75rem;
+            fill: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Class Diagram - ແອັບກະເປົາເງິນ Lightning</h1>
+        
+        <div class="diagram-container">
+            <div class="diagram">
+                <!-- SVG Connection Lines -->
+                <svg class="connections" viewBox="0 0 1400 900">
+                    <defs>
+                        <!-- Arrow markers -->
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#4a5568"/>
+                        </marker>
+                        
+                        <!-- Diamond for composition -->
+                        <marker id="diamond-filled" markerWidth="12" markerHeight="12" refX="0" refY="6" orient="auto">
+                            <path d="M0,6 L6,0 L12,6 L6,12 z" fill="#2d3748"/>
+                        </marker>
+                        
+                        <!-- Empty diamond for aggregation -->
+                        <marker id="diamond-empty" markerWidth="12" markerHeight="12" refX="0" refY="6" orient="auto">
+                            <path d="M0,6 L6,0 L12,6 L6,12 z" fill="white" stroke="#2d3748" stroke-width="1.5"/>
+                        </marker>
+                    </defs>
+
+                    <!-- 1. User → Wallet (Composition: 1 to 1..*) -->
+                    <path d="M 170 280 L 170 350 L 270 350 L 270 450" 
+                          stroke="#3182ce" stroke-width="2.5" fill="none" 
+                          marker-start="url(#diamond-filled)"/>
+                    <text x="120" y="295" class="multiplicity">1</text>
+                    <text x="280" y="440" class="multiplicity">1..*</text>
+                    <text x="180" y="340" class="relation-label">owns</text>
+
+                    <!-- 2. Wallet → Transaction (Composition: 1 to 0..*) -->
+                    <path d="M 380 550 L 500 550 L 500 350 L 1100 350 L 1100 280" 
+                          stroke="#dd6b20" stroke-width="2.5" fill="none"
+                          marker-start="url(#diamond-filled)"/>
+                    <text x="390" y="540" class="multiplicity">1</text>
+                    <text x="1110" y="295" class="multiplicity">0..*</text>
+                    <text x="520" y="340" class="relation-label">has</text>
+
+                    <!-- 3. Admin → User (verifies: dashed) -->
+                    <path d="M 550 180 L 450 180 L 450 150 L 280 150" 
+                          stroke="#805ad5" stroke-width="2" fill="none" 
+                          stroke-dasharray="8,4"
+                          marker-end="url(#arrow)"/>
+                    <text x="350" y="140" class="relation-label">verifies</text>
+
+                    <!-- 4. Admin → Wallet (verifies: dashed) -->
+                    <path d="M 600 280 L 600 400 L 380 400 L 380 450" 
+                          stroke="#805ad5" stroke-width="2" fill="none" 
+                          stroke-dasharray="8,4"
+                          marker-end="url(#arrow)"/>
+                    <text x="450" y="390" class="relation-label">verifies</text>
+
+                    <!-- 5. Admin → Transaction (verifies: dashed) -->
+                    <path d="M 780 150 L 900 150 L 900 180 L 1050 180" 
+                          stroke="#805ad5" stroke-width="2" fill="none" 
+                          stroke-dasharray="8,4"
+                          marker-end="url(#arrow)"/>
+                    <text x="880" y="140" class="relation-label">verifies</text>
+
+                    <!-- 6. Admin → Merchant (verifies: dashed) -->
+                    <path d="M 700 280 L 700 700 L 1000 700" 
+                          stroke="#805ad5" stroke-width="2" fill="none" 
+                          stroke-dasharray="8,4"
+                          marker-end="url(#arrow)"/>
+                    <text x="800" y="690" class="relation-label">verifies</text>
+
+                    <!-- 7. Merchant → Transaction (Association: creates) -->
+                    <path d="M 1100 450 L 1100 350 L 1150 350 L 1150 280" 
+                          stroke="#e53e3e" stroke-width="2" fill="none"/>
+                    <text x="1050" y="440" class="multiplicity">1</text>
+                    <text x="1160" y="295" class="multiplicity">0..*</text>
+                    <text x="1110" y="340" class="relation-label">creates</text>
+
+                </svg>
+
+                <!-- User Class -->
+                <div class="class-box user">
+                    <div class="class-name user">User</div>
+                    <div class="class-attributes">
+                        <p>- fullName: String</p>
+                        <p>- email: String</p>
+                        <p>- password: String</p>
+                        <p>- avatar: String</p>
+                        <p>- authProvider: String</p>
+                        <p>- isActive: Boolean</p>
+                    </div>
+                    <div class="class-methods">
+                        <p>+ register()</p>
+                        <p>+ login()</p>
+                        <p>+ logout()</p>
+                    </div>
+                </div>
+
+                <!-- Admin Class -->
+                <div class="class-box admin">
+                    <div class="class-name admin">Admin</div>
+                    <div class="class-attributes">
+                        <p>- fullName: String</p>
+                        <p>- email: String</p>
+                        <p>- password: String</p>
+                        <p>- role: String</p>
+                        <p>- isActive: Boolean</p>
+                    </div>
+                    <div class="class-methods">
+                        <p>+ login()</p>
+                        <p>+ logout()</p>
+                        <p>+ verifyUser()</p>
+                        <p>+ verifyWallet()</p>
+                        <p>+ verifyTransaction()</p>
+                        <p>+ verifyMerchant()</p>
+                    </div>
+                </div>
+
+                <!-- Transaction Class -->
+                <div class="class-box transaction">
+                    <div class="class-name transaction">Transaction</div>
+                    <div class="class-attributes">
+                        <p>- paymentHash: String</p>
+                        <p>- type: String</p>
+                        <p>- amountLAK: Number</p>
+                        <p>- amountSats: Number</p>
+                        <p>- status: String</p>
+                        <p>- memo: String</p>
+                        <p>- bolt11: String</p>
+                        <p>- expiresAt: DateTime</p>
+                        <p>- exchangeRate: Number</p>
+                        <p>- completedAt: DateTime</p>
+                    </div>
+                    <div class="class-methods">
+                        <p>+ create()</p>
+                        <p>+ complete()</p>
+                        <p>+ cancel()</p>
+                    </div>
+                </div>
+
+                <!-- Wallet Class -->
+                <div class="class-box wallet">
+                    <div class="class-name wallet">Wallet</div>
+                    <div class="class-attributes">
+                        <p>- walletID: String</p>
+                        <p>- walletName: String</p>
+                        <p>- adminKey: String</p>
+                        <p>- invoiceKey: String</p>
+                        <p>- balance: Number</p>
+                        <p>- isDefault: Boolean</p>
+                        <p>- isActive: Boolean</p>
+                    </div>
+                    <div class="class-methods">
+                        <p>+ getBalance()</p>
+                        <p>+ receive()</p>
+                        <p>+ send()</p>
+                    </div>
+                </div>
+
+                <!-- Merchant Class -->
+                <div class="class-box merchant">
+                    <div class="class-name merchant">Merchant</div>
+                    <div class="class-attributes">
+                        <p>- merchantName: String</p>
+                        <p>- merchantCode: String</p>
+                        <p>- password: String</p>
+                        <p>- logo: String</p>
+                        <p>- isActive: Boolean</p>
+                    </div>
+                    <div class="class-methods">
+                        <p>+ createPayment()</p>
+                        <p>+ getPayments()</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <h3>📋 ຄຳອະທິບາຍເສັ້ນເຊື່ອມຕໍ່</h3>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <svg width="80" height="20">
+                            <line x1="0" y1="10" x2="60" y2="10" stroke="#2d3748" stroke-width="2.5"/>
+                            <polygon points="0,10 8,5 8,15" fill="#2d3748"/>
+                        </svg>
+                        <span><strong>Composition</strong> (ເປັນເຈົ້າຂອງ - ລຶບນຳກັນ)</span>
+                    </div>
+                    <div class="legend-item">
+                        <svg width="80" height="20">
+                            <line x1="0" y1="10" x2="60" y2="10" stroke="#2d3748" stroke-width="2"/>
+                        </svg>
+                        <span><strong>Association</strong> (ມີຄວາມສຳພັນ)</span>
+                    </div>
+                    <div class="legend-item">
+                        <svg width="80" height="20">
+                            <line x1="0" y1="10" x2="60" y2="10" stroke="#805ad5" stroke-width="2" stroke-dasharray="8,4"/>
+                            <polygon points="60,10 52,5 52,15" fill="#4a5568"/>
+                        </svg>
+                        <span><strong>Dependency</strong> (ກວດສອບ/ເພິ່ງພາ)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span><strong style="color: #e53e3e;">1</strong> = ໜຶ່ງ</span>
+                    </div>
+                    <div class="legend-item">
+                        <span><strong style="color: #e53e3e;">1..*</strong> = ໜຶ່ງ ຫຼື ຫຼາຍ</span>
+                    </div>
+                    <div class="legend-item">
+                        <span><strong style="color: #e53e3e;">0..*</strong> = ສູນ ຫຼື ຫຼາຍ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relationship Summary Table -->
+        <div class="diagram-container" style="margin-top: 30px;">
+            <h3 style="margin-bottom: 20px; color: #2d3748;">📝 ສະຫຼຸບຄວາມສຳພັນ</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                    <tr style="background: #edf2f7;">
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #cbd5e0;">ຈາກ Class</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #cbd5e0;">ປະເພດ</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #cbd5e0;">ໄປຫາ Class</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #cbd5e0;">Multiplicity</th>
+                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #cbd5e0;">ຄວາມໝາຍ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>User</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">◆ Composition</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Wallet</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">1 → 1..*</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">User 1 ຄົນ ມີ Wallet 1 ຫຼື ຫຼາຍອັນ</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Wallet</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">◆ Composition</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Transaction</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">1 → 0..*</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Wallet 1 ອັນ ມີ Transaction 0 ຫຼື ຫຼາຍລາຍການ</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Merchant</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">─ Association</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Transaction</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">1 → 0..*</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Merchant 1 ຮ້ານ ສ້າງ Transaction 0 ຫຼື ຫຼາຍລາຍການ</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Admin</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">- - → Dependency</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>User</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">—</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Admin ກວດສອບ User</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Admin</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">- - → Dependency</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Wallet</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">—</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Admin ກວດສອບ Wallet</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Admin</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">- - → Dependency</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Transaction</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">—</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Admin ກວດສອບ Transaction</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Admin</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">- - → Dependency</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;"><strong>Merchant</strong></td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">—</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e2e8f0;">Admin ກວດສອບ Merchant</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
