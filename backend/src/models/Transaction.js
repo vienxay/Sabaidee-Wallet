@@ -70,6 +70,12 @@ const transactionSchema = new mongoose.Schema({
   exchangeRate: {
     type: Number,
   },
+  
+  // ຂໍ້ມູນເພີ່ມເຕີມ
+  metadata: {
+    type: Object,
+    default: null,
+  },
 });
 
 // Index ສຳລັບ query ໄວ

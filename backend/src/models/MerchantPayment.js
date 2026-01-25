@@ -76,10 +76,13 @@ const MerchantPaymentSchema = new mongoose.Schema({
     accountName: String,
     referenceNumber: String,
     transferredAt: Date,
-    paidBy: {
-      type: String,
-      default: 'SABAIDEE_WALLET',
-    },
+    paidBy: String,
+  },
+  
+  // ລະບົກຜູ້ຈ່າຍເງິນ (ບໍລິສັດ)
+  defaultPaidBy: {
+    type: String,
+    default: 'SABAIDEE_WALLET',
   },
 
   memo: String,

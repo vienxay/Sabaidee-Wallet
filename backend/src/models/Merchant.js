@@ -91,15 +91,19 @@ const MerchantSchema = new mongoose.Schema({
 
 // Auto-generate merchantId ແລະ qrCodeId
 MerchantSchema.pre('save', async function(next) {
-  if (!this.merchantId) {
-    const count = await this.constructor.countDocuments();
-    this.merchantId = `MER${String(count + 1).padStart(6, '0')}`;
+  try {
+    if (!this.merchantId) {
+      const count = await this.constructor.countDocuments();
+      this.merchantId = `MER${String(count + 1).padStart(6, '0')}`;
+    }
+    if (!this.qrCodeId) {
+      this.qrCodeId = `QR_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    this.updatedAt = Date.now();
+    next();
+  } catch (error) {
+    next(error);
   }
-  if (!this.qrCodeId) {
-    this.qrCodeId = `QR_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-  this.updatedAt = Date.now();
-  next();
 });
 
 module.exports = mongoose.model('Merchant', MerchantSchema);
