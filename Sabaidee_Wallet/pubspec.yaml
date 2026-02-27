@@ -1,4 +1,4 @@
-name: frontend
+name: Sabaidee_Wallet
 description: "Payment app for tourists in Laos."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -57,6 +57,7 @@ dependencies:
   qr_flutter: ^4.1.0
   intl: ^0.19.0
   flutter_dotenv: ^5.1.0
+  image_picker: ^1.2.1
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:image_picker/image_picker.dart';
 import '../utils/constants.dart';
 
 class QRScannerScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class QRScannerScreen extends StatefulWidget {
 class _QRScannerScreenState extends State<QRScannerScreen> {
   MobileScannerController cameraController = MobileScannerController();
   bool _isScanned = false;
+  bool _isProcessingImage = false;
 
   @override
   void dispose() {
@@ -21,18 +23,100 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
   void _onDetect(BarcodeCapture capture) {
     if (_isScanned) return;
-    
+
     final List<Barcode> barcodes = capture.barcodes;
     for (final barcode in barcodes) {
       if (barcode.rawValue != null) {
         _isScanned = true;
         final String code = barcode.rawValue!;
-        
-        // ປິດໜ້າ scanner ແລະສົ່ງຄ່າກັບ
         Navigator.pop(context, code);
         break;
       }
     }
+  }
+
+  /// ເລືອກຮູບພາບຈາກ Gallery ແລ້ວ scan QR Code
+  Future<void> _pickImageFromGallery() async {
+    if (_isProcessingImage) return;
+
+    setState(() => _isProcessingImage = true);
+
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image == null) {
+        setState(() => _isProcessingImage = false);
+        return;
+      }
+
+      // ໃຊ້ MobileScanner ເພື່ອ analyze ຮູບ
+      final BarcodeCapture? result =
+          await cameraController.analyzeImage(image.path);
+
+      if (!mounted) return;
+
+      if (result != null && result.barcodes.isNotEmpty) {
+        final String? code = result.barcodes.first.rawValue;
+        if (code != null) {
+          Navigator.pop(context, code);
+          return;
+        }
+      }
+
+      // ບໍ່ພົບ QR Code ໃນຮູບ
+      _showNoQRFoundDialog();
+    } catch (e) {
+      if (mounted) _showErrorDialog(e.toString());
+    } finally {
+      if (mounted) setState(() => _isProcessingImage = false);
+    }
+  }
+
+  void _showNoQRFoundDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.qr_code_scanner, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('ບໍ່ພົບ QR Code'),
+          ],
+        ),
+        content: const Text('ບໍ່ພົບ QR Code ໃນຮູບທີ່ເລືອກ\nກະລຸນາເລືອກຮູບໃໝ່'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('ຕົກລົງ', style: TextStyle(color: Colors.orange)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(String error) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.red),
+            SizedBox(width: 8),
+            Text('ເກີດຂໍ້ຜິດພາດ'),
+          ],
+        ),
+        content: Text(error),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('ຕົກລົງ', style: TextStyle(color: Colors.orange)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -78,7 +162,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
             controller: cameraController,
             onDetect: _onDetect,
           ),
-          
+
           // Overlay
           Container(
             decoration: ShapeDecoration(
@@ -91,10 +175,10 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
               ),
             ),
           ),
-          
+
           // ຂໍ້ຄວາມລຸ່ມ
           Positioned(
-            bottom: 100,
+            bottom: 140,
             left: 0,
             right: 0,
             child: Column(
@@ -118,6 +202,60 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                   textAlign: TextAlign.center,
                 ),
               ],
+            ),
+          ),
+
+          // ✅ ປຸ່ມເລືອກຮູບພາບຈາກ Gallery
+          Positioned(
+            bottom: 50,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: GestureDetector(
+                onTap: _isProcessingImage ? null : _pickImageFromGallery,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.5),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: _isProcessingImage
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.photo_library_outlined,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              'ເລືອກຮູບພາບ',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
             ),
           ),
         ],
@@ -189,14 +327,12 @@ class QRScannerOverlayShape extends ShapeBorder {
       height: cutOutSize,
     );
 
-    // Draw overlay
     canvas.drawPath(getOuterPath(rect), paint);
 
-    // Draw corners
     final double cornerLength = borderLength;
     final double r = borderRadius;
 
-    // Top-left corner
+    // Top-left
     canvas.drawPath(
       Path()
         ..moveTo(cutOutRect.left, cutOutRect.top + cornerLength)
@@ -206,7 +342,7 @@ class QRScannerOverlayShape extends ShapeBorder {
       borderPaint,
     );
 
-    // Top-right corner
+    // Top-right
     canvas.drawPath(
       Path()
         ..moveTo(cutOutRect.right - cornerLength, cutOutRect.top)
@@ -216,7 +352,7 @@ class QRScannerOverlayShape extends ShapeBorder {
       borderPaint,
     );
 
-    // Bottom-right corner
+    // Bottom-right
     canvas.drawPath(
       Path()
         ..moveTo(cutOutRect.right, cutOutRect.bottom - cornerLength)
@@ -226,7 +362,7 @@ class QRScannerOverlayShape extends ShapeBorder {
       borderPaint,
     );
 
-    // Bottom-left corner
+    // Bottom-left
     canvas.drawPath(
       Path()
         ..moveTo(cutOutRect.left + cornerLength, cutOutRect.bottom)

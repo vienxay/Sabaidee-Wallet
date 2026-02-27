@@ -4,6 +4,8 @@
 <dict>
 	<key>NSCameraUsageDescription</key>
 	<string>ແອັບຕ້ອງການໃຊ້ກ້ອງເພື່ອສະແກນ QR Code</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+    <string>ຕ້ອງການບັນທຶກຮູບພາບ</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

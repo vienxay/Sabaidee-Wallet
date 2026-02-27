@@ -13,6 +13,7 @@ class WalletService {
   Map<String, String> get _headers => {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer $accessToken',
+    'ngrok-skip-browser-warning': 'true',
   };
 
   // ກວດສອບຍອດເງິນ
