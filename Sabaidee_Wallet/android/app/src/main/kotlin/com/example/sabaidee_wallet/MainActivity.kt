@@ -1,4 +1,4 @@
-package com.example.Sabaidee_Wallet
+package com.example.sabaidee_wallet
 
 import io.flutter.embedding.android.FlutterActivity
 
